@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '')
+@section('title', 'Daftar Kasir')
 
 @section('content')
     <div class="container my-5">
@@ -16,44 +16,81 @@
 
         <!-- Tabel Daftar Kasir -->
         <div class="table-responsive shadow-sm">
-            <table class="table table-hover table-striped align-middle border">
-                <thead class="bg-primary text-white">
-                    <tr class="text-center">
-                        <th>ID</th>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Aksi</th> <!-- Kolom untuk aksi -->
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($kasirs as $kasir)
+            @if ($kasirs->isEmpty())
+                <p class="text-center fs-5 text-muted">Belum ada data kasir yang tersedia.</p>
+            @else
+                <table class="table table-hover table-striped align-middle border">
+                    <thead class="bg-primary text-white">
                         <tr class="text-center">
-                            <td>{{ $kasir->id }}</td>
-                            <td>{{ $kasir->nama }}</td>
-                            <td>{{ $kasir->email }}</td>
-                            <td>
-                                <!-- Tombol Edit -->
-                                <a href="{{ route('kasir.edit', $kasir->id) }}" class="btn btn-warning btn-sm text-white shadow-sm me-2">
-                                    <i class="bi bi-pencil-square"></i> Ubah
-                                </a>
-                                
-                                <!-- Tombol Hapus -->
-                                <form action="{{ route('kasir.destroy', $kasir->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm shadow-sm"
-                                        onclick="return confirm('Apakah Anda yakin ingin menghapus kasir ini?')">
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Aksi</th> <!-- Kolom untuk aksi -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($kasirs as $kasir)
+                            <tr class="text-center">
+                                <td>{{ $kasir->id }}</td>
+                                <td>{{ $kasir->nama }}</td>
+                                <td>{{ $kasir->email }}</td>
+                                <td>
+                                    <!-- Tombol Edit -->
+                                    <a href="{{ route('kasir.edit', $kasir->id) }}"
+                                        class="btn btn-warning btn-sm text-white shadow-sm me-2">
+                                        <i class="bi bi-pencil-square"></i> Ubah
+                                    </a>
+
+                                    <!-- Tombol Hapus -->
+                                    <button type="button" class="btn btn-danger btn-sm shadow-sm" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal" data-id="{{ $kasir->id }}">
                                         <i class="bi bi-trash"></i> Hapus
                                     </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Penghapusan -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menghapus kasir ini? Tindakan ini tidak dapat dibatalkan.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <form id="deleteForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // Mengatur URL form penghapusan pada modal
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteForm = document.getElementById('deleteForm');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+            deleteForm.action = `/kasir/${id}`;
+        });
+    </script>
+@endpush
 
 @push('styles')
     <style>
@@ -69,17 +106,11 @@
             border-radius: 10px;
         }
 
-        /* Header Tabel */
-        thead {
-            background: linear-gradient(90deg, #007bff, #0056b3);
-        }
-
         thead th {
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        /* Baris tabel */
         tbody tr {
             transition: all 0.3s ease;
         }
@@ -88,48 +119,23 @@
             background-color: #f8f9fa;
         }
 
-        /* Tombol */
         .btn {
             border-radius: 50px;
             transition: all 0.3s ease;
         }
 
-        .btn-lg {
-            font-size: 1.2rem;
-        }
-
-        .btn-sm {
-            font-size: 0.875rem;
-        }
-
-        .btn-success {
-            background: linear-gradient(90deg, #28a745, #218838);
-        }
-
-        .btn-success:hover {
-            background: linear-gradient(90deg, #218838, #1e7e34);
-        }
-
-        .btn-warning {
-            background: linear-gradient(90deg, #ffc107, #e0a800);
-        }
-
-        .btn-warning:hover {
-            background: linear-gradient(90deg, #e0a800, #c69500);
-        }
-
-        .btn-danger {
-            background: linear-gradient(90deg, #dc3545, #c82333);
-        }
-
-        .btn-danger:hover {
-            background: linear-gradient(90deg, #c82333, #b21f2d);
-        }
-
-        /* Efek hover tombol */
         .btn:hover {
             transform: scale(1.05);
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modal Header */
+        .modal-header {
+            border-bottom: 0;
+        }
+
+        .modal-footer {
+            border-top: 0;
         }
     </style>
 @endpush

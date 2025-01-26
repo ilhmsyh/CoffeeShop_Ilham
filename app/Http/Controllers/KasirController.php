@@ -34,35 +34,38 @@ class KasirController extends Controller
         return redirect()->route('kasir.index');
     }
 
-    // Menambahkan metode untuk menampilkan halaman edit
     public function edit($id)
     {
-        // Ambil data kasir berdasarkan ID
         $kasir = Kasir::findOrFail($id);
         return view('kasir.edit', compact('kasir'));
     }
 
-    // Menambahkan metode untuk memperbarui data kasir
     public function update(Request $request, $id)
     {
-        // Validasi input data
         $request->validate([
             'nama' => 'required',
-            'email' => 'required|email|unique:kasirs,email,' . $id, // Pastikan email tetap unik kecuali untuk kasir yang sedang diubah
+            'email' => 'required|email|unique:kasirs,email,' . $id,
         ]);
 
-        // Temukan kasir berdasarkan ID
         $kasir = Kasir::findOrFail($id);
-
-        // Perbarui data kasir
         $kasir->update([
             'nama' => $request->nama,
             'email' => $request->email,
-            // Jangan ubah password jika tidak ada perubahan
-            // Anda bisa menambahkan logika jika ingin mengubah password
         ]);
 
-        // Redirect ke halaman daftar kasir dengan pesan sukses
         return redirect()->route('kasir.index')->with('success', 'Kasir berhasil diperbarui!');
+    }
+
+    // Metode untuk menghapus data kasir
+    public function destroy($id)
+    {
+        // Temukan kasir berdasarkan ID
+        $kasir = Kasir::findOrFail($id);
+
+        // Hapus kasir dari database
+        $kasir->delete();
+
+        // Redirect ke halaman daftar kasir dengan pesan sukses
+        return redirect()->route('kasir.index')->with('success', 'Kasir berhasil dihapus!');
     }
 }

@@ -56,3 +56,6 @@ Route::get('/transaksi/{id}', [TransaksiController::class, 'show'])->name('trans
 
 Route::resource('transaksi', TransaksiController::class);
 
+Route::resource('kasir', KasirController::class);
+
+
